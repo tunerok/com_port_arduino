@@ -1,7 +1,7 @@
 #define ITERS 4 //Используется для замедления выдачи значений в порт
 #define MY_ID "TfLjQmm3XZgiqdNA" // ID устройства по которому можно его найти через поиск по COM-портам
-#define KEY_LENGTH 16;
-#define COUNTS 2000;
+#define KEY_LENGTH 16
+#define COUNTS 1000
 
 int i;
 int sig_inp = 2; //Аналоговый вход с которого производится считываение
@@ -14,6 +14,7 @@ char imput_id[KEY_LENGTH];
 bool answer = false; //Для проверки состояния ответа
 bool chk_conn = false; //Бул для проверки состояния коннекта
 int counter = 0;
+byte inc_byte;
 
 void setup() {
   i = 0;
@@ -29,6 +30,10 @@ void setup() {
 
 }
 
+void show(double doub){
+  
+  }
+
 void reset_and_show() { //Функция сброса
   show(val);
   val = 0;
@@ -40,20 +45,20 @@ void reset_and_show() { //Функция сброса
 void loop() {
   i = 0;
   answer = false;
-  while (Serial.available() > 0) && (!chk_conn) {
+  while ((Serial.available() > 0) && (!chk_conn)) {
     inc_byte = Serial.read();
     if (imput_id[i] == inc_byte)
       answer = true;
     else
       answer = false;
     i++;
-    if (i == KEY_LENGTH - 1) && (answer == true)
+    if ((i == KEY_LENGTH - 1) && (answer == true))
       Serial.print("MY_ID");
     chk_conn = true;
   }
 
 
-  if (chk_conn) && (counter == COUNTS) { //проверка подключения эхо-запросом
+  if ((chk_conn) && (counter == COUNTS)) { //проверка подключения эхо-запросом
     Serial.print(6);
     inc_byte = Serial.read();
     if (inc_byte == '7')
@@ -64,13 +69,13 @@ void loop() {
 
   while (counter != COUNTS) {
 
-    temp = analogRead(analogPin);//чтение АЦП
+    temp = analogRead(sig_inp);//чтение АЦП
     if (temp > val)
       val = temp;
     if (iter == ITERS) //ждем ITERS итераций
       reset_and_show();
     iter++;
-    counter++
+    counter++;
   }
 
 
