@@ -6,15 +6,19 @@
 int i;
 int sig_inp = 2; //Аналоговый вход с которого производится считываение
 int reset = 5; //Цифровой вывод, который дергает резет
-bool is_reading = false; //переменная для определения считывает ли контроллер информацию сейчас или нет
+
 int temp = 0; //переменная для считывания данных
 int val = 0;//переменная для хранения данных
 int iter = 0;//номер итерации, чтобы экрану не стало плохо
 char imput_id[KEY_LENGTH];
 bool answer = false; //Для проверки состояния ответа
-bool chk_conn = false; //Бул для проверки состояния коннекта
-int counter = 0;
+
+
 byte inc_byte;
+
+//bool chk_conn = false; //Бул для проверки состояния коннекта
+//int counter = 0;
+//bool is_reading = false; //переменная для определения считывает ли контроллер информацию сейчас или нет
 
 void setup() {
   i = 0;
@@ -45,11 +49,15 @@ void reset_and_show() { //Функция сброса
 void loop() {
   i = 0;
   answer = false;
-  while ((Serial.available() > 0) && (!chk_conn)) {
+  while ((Serial.available() > 0)) {
     inc_byte = Serial.read();
     if (imput_id[i] == inc_byte)
       answer = true;
-    else
+    else if (inc_byte == "C"){
+		Serial.print("E")
+		
+	}
+	else
       answer = false;
     i++;
     if ((i == KEY_LENGTH - 1) && (answer == true))
@@ -58,24 +66,22 @@ void loop() {
   }
 
 
-  if ((chk_conn) && (counter == COUNTS)) { //проверка подключения эхо-запросом
-    Serial.print(6);
-    inc_byte = Serial.read();
-    if (inc_byte == '7')
-      chk_conn = true;
-    else
-      chk_conn = false;
-  }
-
-  while (counter != COUNTS) {
-
+  // if ((chk_conn) && (counter == COUNTS)) { //проверка подключения эхо-запросом
+    // Serial.print(6);
+    // inc_byte = Serial.read();
+    // if (inc_byte == '7')
+      // chk_conn = true;
+    // else
+      // chk_conn = false;
+  // }
+  
     temp = analogRead(sig_inp);//чтение АЦП
     if (temp > val)
       val = temp;
     if (iter == ITERS) //ждем ITERS итераций
       reset_and_show();
     iter++;
-    counter++;
+    //counter++;
   }
 
 
