@@ -1,8 +1,8 @@
 #include <LiquidCrystal.h>
 
 #define ITERS 5000 //Используется для замедления выдачи значений в порт
-#define MY_ID "TfLjQmm3XZgiqdNA" // ID устройства по которому можно его найти через поиск по COM-портам
-#define KEY_LENGTH 16
+//#define MY_ID TfLjQmm3XZgiqdNA
+#define KEY_LENGTH 3
 #define COUNTS 1000
 
 int i;
@@ -12,8 +12,9 @@ int reset = 6; //Цифровой вывод, который дергает ре
 int temp = 0; //переменная для считывания данных
 int val = 0;//переменная для хранения данных
 int iter = 0;//номер итерации, чтобы экрану не стало плохо
-char imput_id[KEY_LENGTH];
-bool answer = false; //Для проверки состояния ответа
+//char imput_id[KEY_LENGTH];
+bool answer = true; //Для проверки состояния ответа
+char MY_ID = 'Q'; // ID устройства по которому можно его найти через поиск по COM-портам
 
 byte smiley[8] = {
   B01100,
@@ -31,10 +32,10 @@ bool with_pc = false; // Для отладки платы без програм�
 // RS, E, DB4, DB5, DB6, DB7
 LiquidCrystal lcd(4, 5, 10, 11, 12, 13);
 
-byte inc_byte;
+char inc_byte = 11;
 
-//bool chk_conn = false; //Бул для проверки состояния коннекта
-//int counter = 0;
+bool chk_conn = false; //Бул для проверки состояния коннекта
+int counter = 0;
 //bool is_reading = false; //переменная для определения считывает ли контроллер информацию сейчас или нет
 
 void setup() {
@@ -44,14 +45,14 @@ void setup() {
   // очищаем дисплей
   lcd.clear();
 
-  if (with_pc) {
-    i = 0;
-    while (i < KEY_LENGTH)
-    {
-      imput_id[i] = MY_ID[i];
-      i++;
-    }
-  }
+  //if (with_pc) {
+ //   i = 0;
+  //  while (i < KEY_LENGTH)
+  //  {
+   //   imput_id[i] = MY_ID[i];
+   //   i++;
+  //  }
+  //}
   lcd.print("Starting..");
   lcd.setCursor(0, 1);
   lcd.print("Open COM...");
@@ -60,6 +61,7 @@ void setup() {
   pinMode(sig_inp, INPUT);//Установка аналогого входа
   pinMode(reset, OUTPUT);//установка резета-выхода
 lcd.clear();
+i = 0;
 }
 
 void show() {
@@ -69,6 +71,9 @@ void show() {
   lcd.print("ADC(5v):"); // \xA0
   lcd.setCursor(0, 1);
   lcd.print(val);
+  //counter ++;
+  if(chk_conn)
+    Serial.println(val);
   
 }
 
@@ -81,26 +86,35 @@ void reset_and_show() { //Функция сброса
 }
 
 void loop() {
-  i = 0;
+  
   answer = false;
-  if (with_pc) {
-    while ((Serial.available() > 0)) {
+  //if (with_pc) {
+    if ((Serial.available() > 0)) {
       inc_byte = Serial.read();
-      if (imput_id[i] == inc_byte)
-        answer = true;
-      else if (inc_byte == "C") {
-        Serial.print("E");
 
+      //delay(200);
+      //Serial.println("sosi");
+
+       if (MY_ID == inc_byte){
+        Serial.println(MY_ID);
+        delay(1000);
+        chk_conn = true;
+        counter = 0;
+       }
+      else if (inc_byte == 'S') {
+        Serial.write("E\n");
+        counter = 0;
       }
       else
+      {
         answer = false;
-      i++;
-      if ((i == KEY_LENGTH - 1) && (answer == true))
-        Serial.print("MY_ID");
-      //chk_conn = true;
+        i = 0;
+        Serial.write("Decline\n");
+      }
+                                                       //
     }
 
-  }
+  //}
   // if ((chk_conn) && (counter == COUNTS)) { //проверка подключения эхо-запросом
   // Serial.print(6);
   // inc_byte = Serial.read();
@@ -109,6 +123,8 @@ void loop() {
   // else
   // chk_conn = false;
   // }
+ // if (counter == 40)
+ //   chk_conn = false;
 
   temp = analogRead(sig_inp);//чтение АЦП
   if (temp > val)
@@ -116,5 +132,6 @@ void loop() {
   if (iter == ITERS) //ждем ITERS итераций
     reset_and_show();
   iter++;
-  //counter++;
+
+      //counter++;
 }
