@@ -1,6 +1,7 @@
 #include <LiquidCrystal.h>
 
 #define ITERS 5000 //Используется для замедления выдачи значений в порт
+#define TICK 100 //Используется для замедления выдачи значений в порт
 //#define MY_ID TfLjQmm3XZgiqdNA
 #define KEY_LENGTH 3
 #define COUNTS 1000
@@ -10,11 +11,14 @@ int sig_inp = A2; //Аналоговый вход с которого произ
 int reset = 6; //Цифровой вывод, который дергает резет
 
 int temp = 0; //переменная для считывания данных
+int previos = 0;//переменная для вывода
 int val = 0;//переменная для хранения данных
 int iter = 0;//номер итерации, чтобы экрану не стало плохо
 //char imput_id[KEY_LENGTH];
 bool answer = true; //Для проверки состояния ответа
 char MY_ID = 'Q'; // ID устройства по которому можно его найти через поиск по COM-портам
+int g = 0;
+double dt = 0;
 
 byte smiley[8] = {
   B01100,
@@ -70,10 +74,10 @@ void show() {
   lcd.write(byte(0));//выводит символ(по аски)
   lcd.print("ADC(5v):"); // \xA0
   lcd.setCursor(0, 1);
-  lcd.print(val);
+  lcd.print(previos);
   //counter ++;
   if(chk_conn)
-    Serial.println(val);
+    Serial.println(previos);
   
 }
 
@@ -82,6 +86,8 @@ void reset_and_show() { //Функция сброса
   val = 0;
   iter = 0;
   digitalWrite(reset, HIGH);
+  delay (100);
+  digitalWrite(reset, LOW);
 
 }
 
@@ -111,7 +117,6 @@ void loop() {
         i = 0;
         Serial.write("Decline\n");
       }
-                                                       //
     }
 
   //}
@@ -127,11 +132,23 @@ void loop() {
  //   chk_conn = false;
 
   temp = analogRead(sig_inp);//чтение АЦП
-  if (temp > val)
-    val = temp;
+  if (temp > val){
+	  if(g == TICK){
+		//previos = val;
+		g = 0;
+		dt = (val - temp)/2;//тест. наклон более 25
+		if (dt > 25)
+			previos = temp;
+	  }
+	  g++;
+  }
+  val = temp;
+  
   if (iter == ITERS) //ждем ITERS итераций
     reset_and_show();
   iter++;
+  
+  
 
       //counter++;
 }
