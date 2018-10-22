@@ -75,6 +75,7 @@ void show1() {
   lcd.print("ADC(5v):"); // \xA0
   lcd.setCursor(0, 1);
   lcd.print(previos);
+  //if(chk_conn)
     Serial.println(show);
   
 }
@@ -96,15 +97,12 @@ void loop() {
   
   answer = false;
 
-    if ((Serial.available() > 0)) {
+    if (Serial.available() > 0) {
       inc_byte = Serial.read();
-
-      //delay(200);
-      //Serial.println("sosi");
 
        if (MY_ID == inc_byte){
         Serial.println(MY_ID);
-        delay(1000);
+        delay(2000);
         chk_conn = true;
         counter = 0;
        }
