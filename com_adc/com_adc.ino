@@ -1,6 +1,6 @@
 #include <LiquidCrystal.h>
 #define ITERS 10 //Используется для замедления выдачи значений в порт
-#define TRIGGER 10 //Используется для замедления выдачи значений в порт
+#define TRIGGER 50 //Используется для замедления выдачи значений в порт
 //#define MY_ID TfLjQmm3XZgiqdNA
 
 
@@ -122,7 +122,7 @@ void loop() {
   temp = analogRead(sig_inp);//чтение АЦП
   if (temp > val){
     previos = val;
-    dt = (-previos + temp)/2;//тест. наклон более 25
+    dt = -previos + temp;//тест. наклон более 50
    // Serial.print("dt ");
    // Serial.println(dt);
    // Serial.print("val ");
