@@ -1,12 +1,14 @@
 #include <LiquidCrystal.h>
-#define ITERS 1 //Используется для замедления выдачи значений в порт
-#define TRIGGER 3 //Используется для замедления выдачи значений в порт
+
+
+#define ITERS 10 //Используется для замедления выдачи значений в порт
+#define TRIGGER 50 //Используется для замедления выдачи значений в порт
 //#define MY_ID TfLjQmm3XZgiqdNA
 
 
 int i;
 int sig_inp = A2; //Аналоговый вход с которого производится считываение
-int reset = 6; //Цифровой вывод, который дергает резет
+int reset = 2; //Цифровой вывод, который дергает резет
 
 int temp = 0; //переменная для считывания данных
 int previos = 0;//переменная для вывода
@@ -19,22 +21,14 @@ char MY_ID = 'Q'; // ID устройства по которому можно е
 int g = 0;
 double dt = 0;
 
-byte smiley[8] = {
-  B01100,
-  B01100,
-  B00100,
-  B11111,
-  B00100,
-  B01010,
-  B01001,
-};
+
 
 bool with_pc = false; // Для отладки платы без программы на пк
 
 // Инициализируем объект-экран, передаём использованные
 // для подключения контакты на Arduino в порядке:
 // RS, E, DB4, DB5, DB6, DB7
-LiquidCrystal lcd(4, 5, 10, 11, 12, 13);
+LiquidCrystal lcd(7, 6, 10, 11, 12, 13);
 
 char inc_byte = 11;
 
@@ -44,7 +38,7 @@ int counter = 0;
 
 void setup() {
  
- lcd.createChar(0, smiley);
+// lcd.createChar(0, smiley);
   // устанавливаем размер (количество столбцов и строк) экрана
   lcd.begin(16, 2);
   // очищаем дисплей
@@ -69,12 +63,14 @@ i = 0;
 }
 
 void show1() {
-    lcd.clear();
+  lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.write(byte(0));//выводит символ(по аски)
-  lcd.print("ADC(5v):"); // \xA0
+  //lcd.write(byte(0));//выводит символ(по аски)
+  lcd.print("Pulse energy"); // \xA0
   lcd.setCursor(0, 1);
-  lcd.print(show);
+  lcd.print(show*0.051);
+  lcd.print(" mJ");
+  delay(20);
   //if(chk_conn)
     Serial.println(show);
   
