@@ -1,12 +1,15 @@
 #include <LiquidCrystal.h>
-#define ITERS 1 //Используется для замедления выдачи значений в порт
-#define TRIGGER 3 //Используется для замедления выдачи значений в порт
+
+#define coef 0.051
+#define ITERS 10 //Используется для замедления выдачи значений в порт
+#define TRIGGER 50 //Используется для замедления выдачи значений в порт
 //#define MY_ID TfLjQmm3XZgiqdNA
 
 
 int i;
 int sig_inp = A2; //Аналоговый вход с которого производится считываение
-int reset = 6; //Цифровой вывод, который дергает резет
+int reset = 3; //Цифровой вывод, который дергает резет
+float temp_t;
 
 int temp = 0; //переменная для считывания данных
 int previos = 0;//переменная для вывода
@@ -19,22 +22,14 @@ char MY_ID = 'Q'; // ID устройства по которому можно е
 int g = 0;
 double dt = 0;
 
-byte smiley[8] = {
-  B01100,
-  B01100,
-  B00100,
-  B11111,
-  B00100,
-  B01010,
-  B01001,
-};
+
 
 bool with_pc = false; // Для отладки платы без программы на пк
 
 // Инициализируем объект-экран, передаём использованные
 // для подключения контакты на Arduino в порядке:
 // RS, E, DB4, DB5, DB6, DB7
-LiquidCrystal lcd(4, 5, 10, 11, 12, 13);
+LiquidCrystal lcd(7, 6, 9, 10, 11, 12);
 
 char inc_byte = 11;
 
@@ -43,8 +38,8 @@ int counter = 0;
 //bool is_reading = false; //переменная для определения считывает ли контроллер информацию сейчас или нет
 
 void setup() {
- 
- lcd.createChar(0, smiley);
+ temp_t = coef;
+// lcd.createChar(0, smiley);
   // устанавливаем размер (количество столбцов и строк) экрана
   lcd.begin(16, 2);
   // очищаем дисплей
@@ -57,7 +52,7 @@ void setup() {
   lcd.print("Setting pins...");
   lcd.clear();
 
-  Serial.begin(9600);//Скорость COM-порта 9600кб/с
+  Serial.begin(4800);//Скорость COM-порта 9600кб/с
   
   pinMode(sig_inp, INPUT);//Установка аналогого входа
   pinMode(reset, OUTPUT);//установка резета-выхода
@@ -66,17 +61,21 @@ void setup() {
 prev_show = 0;
 show = 0;
 i = 0;
+reset_and_show();
 }
 
 void show1() {
-    lcd.clear();
+  temp_t = show*coef;
+  lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.write(byte(0));//выводит символ(по аски)
-  lcd.print("ADC(5v):"); // \xA0
+  //lcd.write(byte(0));//выводит символ(по аски)
+  lcd.print("Pulse energy"); // \xA0
   lcd.setCursor(0, 1);
-  lcd.print(show);
+  lcd.print(temp_t);
+  lcd.print(" mJ");
+  delay(200);
   //if(chk_conn)
-    Serial.println(show);
+    Serial.println(temp_t);
   
 }
 
@@ -94,7 +93,7 @@ void reset_and_show() { //Функция сброса
 }
 
 void loop() {
-  
+ 
   answer = false;
 
     if (Serial.available() > 0) {
@@ -155,3 +154,4 @@ void loop() {
   iter++;
 
 }
+
