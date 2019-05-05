@@ -121,17 +121,7 @@ void loop() {
   temp = analogRead(sig_inp);//чтение АЦП
   if (temp > val){
     previos = val;
-    dt = -previos + temp;//тест. наклон более 50
-   // Serial.print("dt ");
-   // Serial.println(dt);
-   // Serial.print("val ");
-   // Serial.println(val);
-   // Serial.print("temp ");
-   // Serial.println(temp);
-    //Serial.print("show ");
-    //Serial.println(show);
-   // Serial.print("prev_show ");
-    //Serial.println(prev_show);
+    dt = -previos + temp;
     delay(20);
     if (dt > TRIGGER)
       show = temp;
@@ -145,11 +135,9 @@ void loop() {
   if (iter > ITERS) //ждем ITERS итераций
   {
  
-    if ((prev_show - show) != 0){
-     
       reset_and_show();
       
-    }
+    
   }
   iter++;
 
